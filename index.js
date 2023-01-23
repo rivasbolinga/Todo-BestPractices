@@ -61,13 +61,11 @@ const addTaskToStorage = function (arr, newTaskInput) {
 // -- Remove task from Local Storage --
 const removeItemfromLs = function (id) {
   let tasks = JSON.parse(localStorage.getItem('tasks'));
-  tasks = tasks.filter((e) => e.index.toString() !== id.toString());
-  tasks.sort((a, b) => a.index - b.index);
-  for (let i = 0; i < tasks.length; i += 1) {
-    tasks[i].index = i;
-  }
+  const index = tasks.findIndex(task => task.index === id);
+  tasks.splice(index, 1);
   localStorage.setItem('tasks', JSON.stringify(tasks));
 };
+
 
 // -- Update Local Storage when mdify task description --
 const updateLs = function (newInput, id) {
@@ -110,8 +108,8 @@ const clearfromLS = function () {
 form.addEventListener('submit', (e) => {
   e.preventDefault();
   const newTaskInput = todoInput.value;
-  if (newTaskInput === '' || newTaskInput === null) {
-    alert('Start the day writing a task to do!');
+  if (newTaskInput.match(/^[\s]*$/) !== null) {
+    todoInput.value = 'Start the day writing a task to do!';
   } else {
     addTaskToStorage(tasks, newTaskInput);
     todoInput.value = '';
@@ -128,20 +126,30 @@ const getnewInput = function (input, id) {
 // -- Function to handle UI in the task cotianer --
 const clickHandle = function (e) {
   if (e.target.classList.contains('task-text')) {
-    // -- Modify task desciption --
+    modifyTaskDescription(e);
+  } else if (e.target.classList.contains('fa-trash-can')) {
+    deleteTask(e);
+  } else if (e.target.classList.contains('checkbox')) {
+    updateTaskStatus(e);
+  }
+};
+
+function modifyTaskDescription(e) {
     const taskTargeted = e.target.parentElement.parentElement.parentElement;
     taskTargeted.querySelector('.fa-ellipsis-vertical').style.display = 'none';
     taskTargeted.querySelector('.fa-trash-can').style.display = 'flex';
     e.target.readOnly = false;
     const { id } = e.target;
     getnewInput(e.target, id);
-  } else if (e.target.classList.contains('fa-trash-can')) {
-    // -- Delete task when press trash can --
+}
+
+function deleteTask(e) {
     const { id } = e.target;
     removeItemfromLs(id);
     e.target.parentElement.parentElement.remove();
-  } else if (e.target.classList.contains('checkbox')) {
-    // -- Check completed --
+}
+
+function updateTaskStatus(e) {
     const { id } = e.target;
     const checkbox = e.target;
     const sibling = checkbox.closest('.task-wrapper').querySelector('.task-text');
@@ -152,8 +160,8 @@ const clickHandle = function (e) {
       sibling.classList.remove('completed');
       updateStatus(id);
     }
-  }
-};
+}
+
 // --Event to handle UI in task --
 listContainer.addEventListener('click', clickHandle);
 window.addEventListener('load', displayTasks);
