@@ -12,4 +12,6 @@ This repository serves as a collaborative exercise designed to enhance our feedb
 
 ### HTML and CSS best practices
 
+#
+
 * This repo is just made to practice our feedback skills, you can find the original To-Do project [here](https://github.com/rivasbolinga/ToDo-React)
